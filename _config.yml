@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: Aegizz's Blog
-email: your-email@example.com
+email: lloyddraysey@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   This is a personal blog to record my Cybersecurity and Programming Experiences
 baseurl: "" # the subpath of your site, e.g. /blog
@@ -40,6 +40,5 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
-domain: my-site.github.io       # if you want to force HTTPS, specify the domain without the http at the start, e.g. example.com
-url: https://my-site.github.io  # the base hostname and protocol for your site, e.g. http://example.com
+domain: aegizz.github.io       # if you want to force HTTPS, specify the domain without the http at the start, e.g. example.com
 favicon: favicon.ico
