@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/assets/css/style.css?v=af7ca306d424af87ba08c3c5ea71a003b7a76887">
+    <link link rel="shortcut icon" type="image/x-icon" href="../favicon.png">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup theme-color -->
+<!-- start theme color meta headers -->
+<meta name="theme-color" content="#151515">
+<meta name="msapplication-navbutton-color" content="#151515">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- end theme color meta headers -->
+
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Duck CTF 2024 | Aegizz Lloyd Draysey</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Duck CTF 2024" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is a personal blog to record my Cybersecurity and Programming experiences." />
+<meta property="og:description" content="This is a personal blog to record my Cybersecurity and Programming experiences." />
+<link rel="canonical" href="http://localhost:4000/ctfs/duckCTF2024.html" />
+<meta property="og:url" content="http://localhost:4000/ctfs/duckCTF2024.html" />
+<meta property="og:site_name" content="Aegizz Lloyd Draysey" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Duck CTF 2024" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"This is a personal blog to record my Cybersecurity and Programming experiences.","headline":"Duck CTF 2024","url":"http://localhost:4000/ctfs/duckCTF2024.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <a id="a-title" href="/">
+          <h1>Aegizz | Lloyd Draysey</h1>
+        </a>
+        <h2>This is a personal blog to record my Cybersecurity and Programming experiences.</h2>
+
+        <section id="downloads">
+          
+          <a href="https://github.com/Aegizz/aegizz.github.io" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1 id="duck-ctf-2024">Duck CTF 2024</h1>
+
+<p><img src="../ctfs/DSC02360.jpg" /></p>
+
+<p>The Duck CTF is a CTF hosted by both the University of Adelaide’s Capture the Flag club and Computer Science club.</p>
+
+<p>Here is a short write-up of a couple of the web challenges I did.</p>
+
+<h1 id="flag-1-duckstables">Flag 1: Ducks&amp;Tables</h1>
+<p><strong>Question</strong>:</p>
+
+<p><img src="../ctfs/Pasted image 20240831204134.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p><strong><em>Hint</em></strong>: “There’s nothing insecure about a simple database look-up tool - or is there?”</p>
+
+<p><strong>Webpage</strong>:</p>
+
+<p><img src="../ctfs/Pasted image 20240831204325.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p><strong>Initial thoughts:</strong></p>
+
+<p>So from the hint, we can probably guess this is some form of injection to get access to some flag stored in the database. Sweet, let’s open up Burp.</p>
+
+<p><strong>Burp:</strong></p>
+
+<p>So firstly, I opened the Chromium in-built browser and navigated to the webpage.</p>
+
+<p><img src="../ctfs/Pasted image 20240831204741.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Then, I turned the intercept on and hit “Get Duck”.</p>
+
+<p><img src="../ctfs/Pasted image 20240831205136.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Ah, it seems that this text box is simply a way of sending a post request to the Webserver which queries the database for the kind of duck based on our input.</p>
+
+<p>Let’s send this to the repeater and have a little play around with the input.</p>
+
+<p><img src="../ctfs/Pasted image 20240831205708.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" />
+<img src="../ctfs/Pasted image 20240831205719.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>This input was a little optimistic, but Aha! It appears that we need to do some SQL Injection. The ending character of this string is <code class="language-plaintext highlighter-rouge">\"</code> so let’s add this to our request to make it easier to inject. Now it should be pretty simple, let’s boot up a favorite of mine, sqlmap. Let’s change our JSON request to be <code class="language-plaintext highlighter-rouge">{"duck":"*"}</code> to let sqlmap know what to test and save our output to a text file <code class="language-plaintext highlighter-rouge">request3.txt</code>. Sqlmap does not support POST requests unless you specify and this is the easiest way to make sure the request is going where you want it to.</p>
+
+<p><strong>SQLMAP:</strong></p>
+
+<p><img src="../ctfs/Pasted image 20240831210155.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Sqlmap is a pretty handy tool; it’ll try loads of different exploits and inputs to try and get the output you’re looking for. I’m just going to give it my request, tell it to let it rip, and dump the entire database. If I was a better man, I’d look for a column where a flag might be hidden and ask sqlmap to dump columns where that input is not NULL, but I am not, so we’re just going to ask it to get everything.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlmap <span class="nt">-r</span> request3.txt <span class="nt">--level</span> 5 <span class="nt">--risk</span> 3 <span class="nt">--dump</span>
+</code></pre></div></div>
+<p>After running this command, sqlmap quickly picked up on the database being SQLite, meaning we can restart the attack with the new database version set.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlmap <span class="nt">-r</span> request3.txt <span class="nt">--level</span> 5 <span class="nt">--risk</span> 3 <span class="nt">--dump</span> <span class="nt">--dbms</span><span class="o">=</span><span class="s2">"sqlite"</span>
+</code></pre></div></div>
+<p>After a couple of minutes, we can see that the ducks table has a secret TEXT. This is probably where the flag is stored; after a few minutes of being bored, I caved and used a where statement. <img src="../ctfs/Pasted image 20240901225246.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlmap <span class="nt">-r</span> request4.txt <span class="nt">--level</span> 5 <span class="nt">--risk</span> 3 <span class="nt">--dump</span> <span class="nt">--dbms</span><span class="o">=</span><span class="s2">"sqlite"</span> <span class="nt">--time-sec</span><span class="o">=</span>2 <span class="nt">--where</span> <span class="s2">"secret IS NOT NULL"</span> <span class="nt">--threads</span> 4
+</code></pre></div></div>
+
+<p>After a few seconds, we get the following flag: <img src="../ctfs/Pasted image 20240901230005.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Pretty easy, provided you know your way around web flags.</p>
+
+<p>quack{s0_a_bl1nd_duck_w4lks_1nt0_a_t4bl3_4nd_s4y5_wh0_m0v3d_th3_p0nd?}</p>
+
+<h1 id="flag-2-skullboard">Flag 2: Skullboard</h1>
+<p><strong>Question</strong>:
+<img src="../ctfs/Pasted image 20240901230318.png" alt="Question Image" style="display: block; margin: auto;" width="256" />
+<strong><em>Do you have what it takes to out𝓯𝓻𝓮𝓪𝓴 the 𝓯𝓻𝓮𝓪𝓴𝓲𝓮𝓼𝓽 of all 𝓯𝓻𝓮𝓪𝓴𝓼?</em></strong></p>
+
+<p>Yes, Yes I do.</p>
+
+<p>Let’s have a little investigation of the webpage and its provided code.</p>
+<h3 id="apppy">app.py</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># This is super secure, shush :x
+</span><span class="k">def</span> <span class="nf">prepare_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">force_bytes</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+<span class="n">jwt</span><span class="p">.</span><span class="n">api_jws</span><span class="p">.</span><span class="n">_jws_global_obj</span><span class="p">.</span><span class="n">_algorithms</span><span class="p">[</span><span class="s">'HS256'</span><span class="p">].</span><span class="n">prepare_key</span> <span class="o">=</span> <span class="n">prepare_key</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="n">priv_key</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'priv.pem'</span><span class="p">,</span> <span class="s">'r'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+<span class="n">pub_key</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'pub.pem'</span><span class="p">,</span> <span class="s">'r'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">users_only</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="o">@</span><span class="n">wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">cookies</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'token'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">'login'</span><span class="p">))</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># This is kinda janky but it works
+</span>            <span class="n">alg</span> <span class="o">=</span> <span class="n">jwt</span><span class="p">.</span><span class="n">get_unverified_header</span><span class="p">(</span><span class="n">token</span><span class="p">)[</span><span class="s">'alg'</span><span class="p">]</span>
+            <span class="n">jwt</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">pub_key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="n">alg</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">'login'</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decorated</span>
+
+
+<span class="o">@</span><span class="n">app</span><span class="p">.</span><span class="n">route</span><span class="p">(</span><span class="s">'/skullboard'</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">'GET'</span><span class="p">])</span>
+<span class="o">@</span><span class="n">users_only</span>
+<span class="k">def</span> <span class="nf">skullboard</span><span class="p">():</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">cookies</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'token'</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># it works so why fix it :^)
+</span>        <span class="n">alg</span> <span class="o">=</span> <span class="n">jwt</span><span class="p">.</span><span class="n">get_unverified_header</span><span class="p">(</span><span class="n">token</span><span class="p">)[</span><span class="s">'alg'</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">jwt</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">pub_key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="n">alg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s">'user'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'admin'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">'skullboard.html'</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s">'Hœh!? How did you get in here?? </span><span class="si">{</span><span class="n">os</span><span class="p">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">"FLAG"</span><span class="p">)</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jwt</span><span class="p">.</span><span class="n">ExpiredSignatureError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">'login'</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">jwt</span><span class="p">.</span><span class="n">InvalidTokenError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">'login'</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">'skullboard.html'</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s">'You must be the admin user in order to view the secret!'</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">app</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">"0.0.0.0"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s">"8000"</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+<p>So this server will provide us with a flag when our JSON Web Token (JWT) defines our user as an admin. Hmmmm, this is a little tricky, there are some hints in the code let’s go from there. It seems that when we send a GET request to the /skullboard page, we can define our algorithm in the JWT. This… does not really help much. We need to find some way of self-signing these JSON Web Tokens. There is a hint right at the top of the code—it seems that whoever developed this application overwrote the JWT HS256 algorithm with their own custom algorithm. Let’s research a bit more on some tricks we can do with JWTs.</p>
+
+<p>Whenever I feel the need to do some research on a given methodology or research on an area I am unfamiliar with, my go-to is Hacktricks.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240901232503.png" alt="Hacktricks JWT Research" /></p>
+
+<p>Hacktricks gave me a few ideas to work with. Firstly, they recommend jwt_tool, a Python script for testing for JWT vulnerabilities and configurations.</p>
+
+<p>Let’s get started. First, let’s make an account and get a token.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240901232742.png" alt="Account and Token Creation" style="display: block; margin-left: auto; margin-right: auto;" width="256" /></p>
+
+<p>After logging in with this account, I checked my cookies and found this token:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZnJlYWtpZXN0RnJlYWsiLCJleHAiOjE3MjUyMDI2Njl9.avknANuiNBIkPzQ4m-4RXy9XEbB2CHVxK4ZRoBo__Y8_2QtI9wpG6iLUqnvMnm1Mp0rSZ2Y83tsQx-7ckVw3BLVqhFVMP5Yd39GIoxcBfyNYa8L0dlAd4M9SK4nf9Yfyu3O_LHjni1Lz1G_PcxLTODB87hA69nro-Dgb6YT-frD97B6nbANyB0rtEgfOceeAZ8YM7PkTIasCyCHDRpkqgvzPpHHTepZklw8WF0JUYW62w0PGMf8h24NBZjKRrhW7TTQ2WP0Vmo7XxLG9uNnTrD3qNKX_edzGrQ8HzI3b95Shyxu36XgKtTbm46PxlYshtPJmumprVwz3nqbq-Anu9w
+</code></pre></div></div>
+
+<p>Let’s run this with the tool recommended by Hacktricks.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240901233021.png" alt="Running JWT Tool" style="display: block; margin-left: auto; margin-right: auto;" width="256" /></p>
+
+<p>This tool shows that the default algorithm appears to be RS256 and that the user value is stored in the base64 encoded values of this JWT. I ran a few of the test commands on this tool and didn’t seem to get any quick wins back. Alright, let’s do a little more research.</p>
+
+<p>Hacktricks recommends an exploit where, by changing the algorithm from RS256 to HS256, a program reuses the public key as the private key used in signing an HS256 token.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240901234914.png" alt="Algorithm Change Exploit" /></p>
+
+<p>This… just might work. I found this nice tool online that can use the public key from my JWT here to create a new payload.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240901235837.png" alt="JWT Public Key Tool" /></p>
+
+<p>Alright, if we can find a way to get the public key somehow, we should be able to exploit this coding mistake. This GitHub repo should do the trick: https://github.com/silentsignal/rsa_sign2n. Here we run the x_CVE-2017-11424.py script. This provides us with the public key of the JWTs.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240902025125.png" alt="Running RSA Sign Script" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" />
+<img src="../ctfs/Pasted%20image%2020240902025446.png" alt="RSA Public Key Extracted" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Here, from our encoded token, we can copy this public key, encode it in base64, and use it to generate an HS256 JWT.</p>
+
+<p><img src="../ctfs/Pasted%20image%2020240902025510.png" alt="Base64 Encode Public Key" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" />
+<img src="../ctfs/Pasted%20image%2020240902025706.png" alt="Generated HS256 JWT" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Sweet! Let’s try and reload the Skullboard with this encoded token:</p>
+
+<p><code class="language-plaintext highlighter-rouge">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOjE4MjUyMDI2Njl9.b8r4rnwIi1Km4QPpVJZy6z3Z-wMdLz8q13UrejFe54s</code></p>
+
+<p><img src="../ctfs/Pasted%20image%2020240902025902.png" alt="Final Flag" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
+
+<p>Oh yeah! Are we freaky or what! Here’s our flag: <code class="language-plaintext highlighter-rouge">quack{uns4n1t1s3d_4lg0_m4k3s_au7h_byp4ss_3zpz!1!1}</code>. This was a really cool box, big thanks to Samiko for creating these challenges and helping me ensure the keys I generated were correct.</p>
+
+<p>If you need help getting this working on your machine, feel free to contact me on Discord: <code class="language-plaintext highlighter-rouge">aegizz.</code> Happy hacking!</p>
+
+      </section>
+    </div>
+  </body>
+</html>
