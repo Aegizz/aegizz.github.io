@@ -1,4 +1,6 @@
-# This is the github repo for my website.
+# Jekyll Github Page
+
+This is the code for my website [Here](https://aegizz.github.io).
 
 
 Currently the website is running using jekyll & GH pages.
@@ -13,9 +15,8 @@ cd /PATH_TO_REPO/
 
 bundle install
 
-
 bundle exec jekyll serve
 ```
 
-This should run the website on localhost:4000
+This should run the website on http://127.0.0.1:4000
 
