@@ -8,12 +8,13 @@
     <a id="a-title" href="/">
     <h1>About Me</h1>
     </a>
-    <img src="profile.jpg">
+    <img src="Profile.jpg">
     <section id="Profiles">
     <a href="https://github.com/Aegizz" class="btn btn-github"><span class="icon"></span>View me on GitHub</a>
     <a href="https://www.linkedin.com/in/lloyd-draysey-618647187/" class="btn btn-linkedin"><span class="icon"></span>View me on LinkedIn</a>
     <a href="https://twitter.com/AegizzR6" class="btn btn-twitter"><span class="icon"></span>View me on Twitter</a>
     </section>
+    <p>Hi! My name is Lloyd, but I sometimes go by Aegizz. I am third year Computer Science student at The University of Adelaide with a major in Cybersecuritry.</p>
 </div>
 <div class="container">
     <section id="main_content">
