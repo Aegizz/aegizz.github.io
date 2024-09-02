@@ -14,7 +14,7 @@
     <a href="https://www.linkedin.com/in/lloyd-draysey-618647187/" class="btn btn-linkedin"><span class="icon"></span>View me on LinkedIn</a>
     <a href="https://twitter.com/AegizzR6" class="btn btn-twitter"><span class="icon"></span>View me on Twitter</a>
     </section>
-    <p>Hi! My name is Lloyd, but I sometimes go by Aegizz. I am third year Computer Science student at The University of Adelaide with a major in Cybersecuritry. I currently work as a Digital Forernsic Analyst and spend my spare time researching and experimenting various areas of red teaming.</p>
+    <p>Hi! My name is Lloyd, but I sometimes go by Aegizz. I am third year Computer Science student at The University of Adelaide with a major in Cybersecuritry. I currently work as a Digital Forernsic Analyst and spend my spare time researching and experimenting with various areas of red teaming.</p>
 </div>
 <div class="container">
     <section id="main_content">
@@ -30,9 +30,19 @@
     <ul>
     <a href="/ctfs/duckCTF2024"><li>DuckCTF 2024</li></a>
     <br>
-    <a href="/ctfs/AdelaideB9"><li>AdelaideB9 CTF</li></a>
+    <a href="/ctfs/adelaideB9"><li>AdelaideBSides CTF</li></a>
     <br>
-    <a href="/ctfs/duckCTF2023"><li>DuckCTF 2023</li></a>
+    </ul>
+    </section>
+</div>
+<div class="container">
+    <section id="main_content">
+
+    <h1 id="this-is-a-personal-blog-to-record-my-cybersecurity-and-programming-experiences">Competitive Programming and Software Engineering</h1>
+    <ul>
+    <a href="/coding/leetcode"><li>Leetcodes</li></a>
+    <br>
+    <a href="/coding/rsp"><li>Ravi Study Program</li></a>
     <br>
     </ul>
     </section>
