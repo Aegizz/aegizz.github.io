@@ -4,6 +4,10 @@
 
 The Duck CTF is a CTF hosted by both the University of Adelaide's Capture the Flag club and Computer Science club.
 
+Whilst I didn't place as well as I had hoped (6th/20), it was still a ton of fun.
+
+Big thanks to [Cuinn](https://www.linkedin.com/in/cuinnkemp/) and [Elke](https://www.linkedin.com/in/elke-milne) for being my teammates.
+
 Here is a short write-up of a couple of the web challenges I did.
 
 # Flag 1: Ducks&Tables
