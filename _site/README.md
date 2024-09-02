@@ -1,10 +1,10 @@
-# Jekyll Github Page
+# Github Hosted Website
 
 This is the code for my website [Here](https://aegizz.github.io).
 
 
-Currently the website is running using jekyll & GH pages.
-
+Currently the website is running using jekyll & GH pages with the "Hacker" template.
+g
 If you want to run this yourself follow the following steps:
 
 ```bash
