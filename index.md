@@ -8,7 +8,7 @@
     <a id="a-title" href="/">
     <h1>About Me</h1>
     </a>
-    <img src="1724663166421.jpg">
+    <img src="profile.jpg">
     <section id="Profiles">
     <a href="https://github.com/Aegizz" class="btn btn-github"><span class="icon"></span>View me on GitHub</a>
     <a href="https://www.linkedin.com/in/lloyd-draysey-618647187/" class="btn btn-linkedin"><span class="icon"></span>View me on LinkedIn</a>
