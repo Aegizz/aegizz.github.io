@@ -60,7 +60,7 @@ Let's send this to the repeater and have a little play around with the input.
   margin-right: auto;
   width: 50%;">
 
-This input was a little optimistic, but Aha! It appears that we need to do some SQL Injection. The ending character of this string is `\"` so let's add this to our request to make it easier to inject. Now it should be pretty simple, let's boot up a favorite of mine, sqlmap. Let's change our JSON request to be `{"duck":"*"}` to let sqlmap know what to test and save our output to a text file `request3.txt`. Sqlmap does not support POST requests unless you specify and this is the easiest way to make sure the request is going where you want it to.
+This input was a little optimistic, but Aha! It appears that we need to do some SQL Injection. The ending character of this string is `\"` so let's add this to our request to make it easier to inject. Now it should be pretty simple, let's boot up a favorite of mine, sqlmap. Let's change our JSON request to be `{"duck":"\"*"}` to let sqlmap know what to test and save our output to a text file `request3.txt`. Sqlmap does not support POST requests unless you specify and this is the easiest way to make sure the request is going where you want it to.
 
 **SQLMAP:**
 
