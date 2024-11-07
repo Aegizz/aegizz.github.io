@@ -9,7 +9,7 @@
 
 On the 17th of May to the 19th, BSides was coming to Adelaide. And with BSides, comes a CTF.
 
-After asking around a few friends seemed interested, so we formed a team. [Kei](https://www.linkedin.com/in/sheryl-l2022/), [Will](https://www.linkedin.com/in/willjjohnston/) and [Bailey](https://www.linkedin.com/in/bayleyfoster).
+After asking around a few friends seemed interested, so we formed a team. [Kei](https://www.linkedin.com/in/sheryl-adl/), [Will](https://www.linkedin.com/in/willjjohnston/) and [Bailey](https://www.linkedin.com/in/bayleyfoster).
 
 We entered under Kei's and I's old Valorant team name `O'ballz`.
 
