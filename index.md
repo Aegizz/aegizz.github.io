@@ -44,6 +44,8 @@
     <br>
     <a href="/coding/rsp"><li>Ravi Study Program</li></a>
     <br>
+    <a href="/coding/cider"><li>My favourite music player stopped working? Lets fix it!</li></a>
+    <br>
     </ul>
     </section>
 </div>

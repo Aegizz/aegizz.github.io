@@ -4,7 +4,7 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/assets/css/style.css?v=af7ca306d424af87ba08c3c5ea71a003b7a76887">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1e50a570928d512ed6345848782dcbd5de0bc444">
     <link link rel="shortcut icon" type="image/x-icon" href="../favicon.png">
     <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
 
@@ -107,7 +107,7 @@
 <p><img src="../ctfs/Pasted image 20240831205708.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" />
 <img src="../ctfs/Pasted image 20240831205719.png" style=" display: block;   margin-left: auto;   margin-right: auto;   width: 50%;" /></p>
 
-<p>This input was a little optimistic, but Aha! It appears that we need to do some SQL Injection. The ending character of this string is <code class="language-plaintext highlighter-rouge">\"</code> so let’s add this to our request to make it easier to inject. Now it should be pretty simple, let’s boot up a favorite of mine, sqlmap. Let’s change our JSON request to be <code class="language-plaintext highlighter-rouge">{"duck":"*"}</code> to let sqlmap know what to test and save our output to a text file <code class="language-plaintext highlighter-rouge">request3.txt</code>. Sqlmap does not support POST requests unless you specify and this is the easiest way to make sure the request is going where you want it to.</p>
+<p>This input was a little optimistic, but Aha! It appears that we need to do some SQL Injection. The ending character of this string is <code class="language-plaintext highlighter-rouge">\"</code> so let’s add this to our request to make it easier to inject. Now it should be pretty simple, let’s boot up a favorite of mine, sqlmap. Let’s change our JSON request to be <code class="language-plaintext highlighter-rouge">{"duck":"\"*"}</code> to let sqlmap know what to test and save our output to a text file <code class="language-plaintext highlighter-rouge">request3.txt</code>. Sqlmap does not support POST requests unless you specify and this is the easiest way to make sure the request is going where you want it to.</p>
 
 <p><strong>SQLMAP:</strong></p>
 

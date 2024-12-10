@@ -14,7 +14,7 @@
     <a href="https://www.linkedin.com/in/lloyd-draysey-618647187/" class="btn btn-linkedin"><span class="icon"></span>View me on LinkedIn</a>
     <a href="https://twitter.com/AegizzR6" class="btn btn-twitter"><span class="icon"></span>View me on Twitter</a>
     </section>
-    <p>Hi! My name is Lloyd, but I sometimes go by Aegizz. I am third year Computer Science student at The University of Adelaide with a major in Cybersecuritry. I currently work as a Digital Forernsic Analyst and spend my spare time researching and experimenting with various areas of red teaming.</p>
+    <p>Hi! My name is Lloyd, but I sometimes go by Aegizz. I am a third year Computer Science student at The University of Adelaide with a major in Cybersecuritry. I currently work as a Digital Forensic Analyst and spend my spare time researching and experimenting with various areas of red teaming.</p>
 </div>
 <div class="container">
     <section id="main_content">
@@ -43,6 +43,8 @@
     <a href="/coding/leetcode"><li>Leetcodes</li></a>
     <br>
     <a href="/coding/rsp"><li>Ravi Study Program</li></a>
+    <br>
+    <a href="/coding/cider"><li>My favourite music player stopped working? Lets fix it!</li></a>
     <br>
     </ul>
     </section>
