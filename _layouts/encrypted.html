@@ -1,0 +1,50 @@
+---
+layout: post
+---
+
+<div id="encrypted_content">
+  <form id="encrypt_form" action="#" method="post">
+    <input id="encrypt_password"
+           type="password"
+           name="password"
+           placeholder="Enter password (root flag)"
+           autofocus />
+
+    <input type="submit" value="Unlock"/>
+  </form>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+  <script>
+    document.getElementById('encrypt_form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var passphrase = document.getElementById('encrypt_password').value;
+      var encryptedMsg = '{{ page.encrypted }}';
+      
+      try {
+        // Parse IV and encrypted content
+        var parts = encryptedMsg.split(':');
+        var iv = CryptoJS.enc.Hex.parse(parts[0]);
+        var encryptedContent = CryptoJS.enc.Hex.parse(parts[1]);
+
+        // Derive key from password
+        var key = CryptoJS.SHA256(passphrase);
+
+        // Decrypt content
+        var decrypted = CryptoJS.AES.decrypt(
+          { ciphertext: encryptedContent },
+          key,
+          { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+        );
+
+        var plainHTML = decrypted.toString(CryptoJS.enc.Utf8);
+        if (plainHTML) {
+          document.getElementById('encrypted_content').innerHTML = plainHTML;
+        } else {
+          alert('Incorrect password');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Decryption failed');
+      }
+    });
+  </script>
+</div>

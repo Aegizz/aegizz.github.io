@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "decrypt": "^0.0.1",
+    "del": "^8.0.0",
+    "fs": "^0.0.1-security",
+    "gulp": "^5.0.0",
+    "gulp-encrypt": "^0.2.0",
+    "path": "^0.12.7"
+  }
+}
