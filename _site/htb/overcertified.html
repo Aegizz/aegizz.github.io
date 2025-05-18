@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/assets/css/style.css?v=0153dd49d3f7d58e7ced133310a3c38f35a8596d">
+    <link link rel="shortcut icon" type="image/x-icon" href="../favicon.png">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup theme-color -->
+<!-- start theme color meta headers -->
+<meta name="theme-color" content="#151515">
+<meta name="msapplication-navbutton-color" content="#151515">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- end theme color meta headers -->
+
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Overcertified | Aegizz Lloyd Draysey</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Overcertified" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is a personal blog to record my Cybersecurity and Programming experiences." />
+<meta property="og:description" content="This is a personal blog to record my Cybersecurity and Programming experiences." />
+<link rel="canonical" href="http://localhost:4000/htb/overcertified.html" />
+<meta property="og:url" content="http://localhost:4000/htb/overcertified.html" />
+<meta property="og:site_name" content="Aegizz Lloyd Draysey" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Overcertified" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"This is a personal blog to record my Cybersecurity and Programming experiences.","headline":"Overcertified","url":"http://localhost:4000/htb/overcertified.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <a id="a-title" href="/">
+          <h1>Aegizz | Lloyd Draysey</h1>
+        </a>
+        <h2>This is a personal blog to record my Cybersecurity and Programming experiences.</h2>
+
+        <section id="downloads">
+          
+          <a href="https://github.com/Aegizz/aegizz.github.io" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1 id="overcertified">Overcertified</h1>
+
+<p><img src="image.png" alt="alt text" /></p>
+
+<p>Overcertified is an easy windows box that is accessible through HTB Enterprise.</p>
+
+<p>It’s actually pretty interesting as some of the concepts outlined here are pretty realistic.</p>
+
+<p>Let’s dive in.</p>
+
+<h3 id="recon--enumeration">Recon &amp; Enumeration</h3>
+
+<p>Every good HTB Write up starts with very, very good recon. Mine does not. I’ll miss some things here and will come back to some more recon later.</p>
+
+<p>First, lets get some eyes.</p>
+
+<h4 id="scan">Scan</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nmap 10.129.229.25 <span class="nt">-T4</span> <span class="nt">-A</span>
+Nmap scan report <span class="k">for </span>10.129.229.25
+Host is up <span class="o">(</span>0.36s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 987 filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+PORT     STATE SERVICE       VERSION
+53/tcp   open  domain        Simple DNS Plus
+88/tcp   open  kerberos-sec  Microsoft Windows Kerberos <span class="o">(</span>server <span class="nb">time</span>: 2025-05-18 17:11:48Z<span class="o">)</span>
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp  open  ldap          Microsoft Windows 
+445/tcp  open  microsoft-ds?
+464/tcp  open  kpasswd5?
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  ssl/ldap      Microsoft Windows 
+1433/tcp open  ms-sql-s      Microsoft SQL Server 2022 16.00.1000.00<span class="p">;</span> RTM
+| ms-sql-info: 
+|   10.129.229.25:1433: 
+|     Version: 
+|       name: Microsoft SQL Server 2022 RTM
+|       number: 16.00.1000.00
+|       Product: Microsoft SQL Server 2022
+|       Service pack level: RTM
+|       Post-SP patches applied: <span class="nb">false</span>
+|_    TCP port: 1433
+| ms-sql-ntlm-info: 
+|   10.129.229.25:1433: 
+|     Target_Name: CERTIFIEDDC
+|     NetBIOS_Domain_Name: CERTIFIEDDC
+|     NetBIOS_Computer_Name: CERTIFIED
+|     DNS_Domain_Name: certified.htb
+|     DNS_Computer_Name: CERTIFIED.certified.htb
+|     DNS_Tree_Name: certified.htb
+|_    Product_Version: 10.0.20348
+| ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>SSL_Self_Signed_Fallback
+| Not valid before: 2025-05-18T16:53:23
+|_Not valid after:  2055-05-18T16:53:23
+|_ssl-date: 2025-05-18T17:13:22+00:00<span class="p">;</span> +6h59m13s from scanner time.
+3268/tcp open  ldap          Microsoft Windows 
+3269/tcp open  ssl/ldap      Microsoft Windows 
+5985/tcp open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+|_http-title: Not Found
+|_http-server-header: Microsoft-HTTPAPI/2.0
+
+Host script results:
+| smb2-time: 
+|   <span class="nb">date</span>: 2025-05-18T17:12:41
+|_  start_date: N/A
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled and required
+|_clock-skew: mean: 6h59m12s, deviation: 0s, median: 6h59m11s
+
+TRACEROUTE <span class="o">(</span>using port 53/tcp<span class="o">)</span>
+HOP RTT       ADDRESS
+1   385.98 ms 10.10.14.1
+2   386.33 ms 10.129.229.25
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="nb">.</span>
+Nmap <span class="k">done</span>: 1 IP address <span class="o">(</span>1 host up<span class="o">)</span> scanned <span class="k">in </span>122.83 seconds
+                                                
+</code></pre></div></div>
+
+<p>Alright, we’ve got:</p>
+
+<ul>
+  <li>DNS</li>
+  <li><strong>Kerberos Auth (!)</strong></li>
+  <li>RPC (!)</li>
+  <li><strong>SMB (!)</strong></li>
+  <li><strong>LDAP (!)</strong></li>
+  <li>Kerberos Password Change</li>
+  <li>More rpc</li>
+  <li>LDAPS</li>
+  <li><strong>MSSQL (!)</strong></li>
+  <li><strong>WINRM (!)</strong></li>
+</ul>
+
+<h4 id="enumerating">Enumerating</h4>
+
+<p>Now lets enumerate these services. First I set up responder, just in case.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span><span class="nb">sudo </span>responder <span class="nt">-I</span> tun0 <span class="nt">-dw</span> 
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  <span class="nt">-__</span>|__ <span class="nt">--</span>|  _  |  _  |     |  _  <span class="o">||</span>  <span class="nt">-__</span>|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+
+           NBT-NS, LLMNR &amp; MDNS Responder 3.1.5.0
+
+  To support this project:
+  Github -&gt; https://github.com/sponsors/lgandx
+  Paypal  -&gt; https://paypal.me/PythonResponder
+
+  Author: Laurent Gaffie <span class="o">(</span>laurent.gaffie@gmail.com<span class="o">)</span>
+  To <span class="nb">kill </span>this script hit CTRL-C
+
+
+&lt;Insert yap here&gt;
+
+<span class="o">[</span>+] Listening <span class="k">for </span>events...                                                                                                                                 
+
+</code></pre></div></div>
+<p>Alright lets get cracking with some netexec.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc smb 10.129.229.25 <span class="nt">-u</span> <span class="s1">'guest'</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">--shares</span>                                                                
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 x64 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> 
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span>-] certified.htb<span class="se">\g</span>uest: STATUS_ACCOUNT_DISABLED 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc smb 10.129.229.25 <span class="nt">-u</span> <span class="s1">'anonymous'</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">--shares</span> 
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 x64 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> 
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span>-] certified.htb<span class="se">\a</span>nonymous: STATUS_LOGON_FAILURE 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">'anonymous'</span> <span class="nt">-p</span> <span class="s1">''</span>      
+
+                    <span class="o">[</span>-] Error reflecting tables <span class="k">for </span>the LDAP protocol - this means there is a DB schema mismatch
+                    <span class="o">[</span>-] This is probably because a newer version of nxc is being run on an old DB schema
+                    <span class="o">[</span>-] Optionally save the old DB data <span class="o">(</span><span class="sb">`</span><span class="nb">cp</span> /home/kali/.nxc/workspaces/default/ldap.db ~/nxc_ldap.bak<span class="sb">`</span><span class="o">)</span>
+                    <span class="o">[</span>-] Then remove the nxc LDAP DB <span class="o">(</span><span class="sb">`</span><span class="nb">rm</span> <span class="nt">-f</span> /home/kali/.nxc/workspaces/default/ldap.db<span class="sb">`</span><span class="o">)</span> and run nxc to initialize the new DB
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> /home/kali/.nxc/workspaces/default/ldap.db
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">'anonymous'</span> <span class="nt">-p</span> <span class="s1">''</span>     
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Initializing LDAP protocol database
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>-] certified.htb<span class="se">\a</span>nonymous: 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">'guest'</span> <span class="nt">-p</span> <span class="s1">''</span>     
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>-] certified.htb<span class="se">\g</span>uest: STATUS_ACCOUNT_DISABLED
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span>      
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc smb 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">--shares</span> 
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 x64 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> 
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+SMB         10.129.229.25   445    CERTIFIED        <span class="o">[</span>-] Error enumerating shares: STATUS_ACCESS_DENIED
+
+
+</code></pre></div></div>
+<p>Hmmm, okay seems that we can do some stuff with LDAP.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">-M</span> user-desc
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+USER-DESC   10.129.229.25   389    CERTIFIED        User: ldapusr - Description: Ldap Service Account Password: ldapisfun
+USER-DESC   10.129.229.25   389    CERTIFIED        Saved 2 user descriptions to /home/kali/.nxc/logs/UserDesc-CERTIFIED.certified.htb-20250518_150831.log
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">-M</span> get-userPassword
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+GET-USER... 10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] Found following <span class="nb">users</span>: 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">-M</span> adcs            
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+ADCS        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Starting LDAP search with search filter <span class="s1">'(objectClass=pKIEnrollmentService)'</span>
+                                                                                                                                                                                                                                                                 
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">-M</span> daclread
+DACLREAD                                            <span class="o">[</span>-] Select an option, example: <span class="nt">-M</span> daclread <span class="nt">-o</span> <span class="nv">TARGET</span><span class="o">=</span>Administrator <span class="nv">ACTION</span><span class="o">=</span><span class="nb">read</span>
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">-M</span> maq     
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+MAQ         10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Getting the MachineAccountQuota
+MAQ         10.129.229.25   389    CERTIFIED        MachineAccountQuota: 10
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc ldap 10.129.229.25 <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span> <span class="nt">-M</span> pre2k
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+LDAP        10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\:</span> 
+PRE2K       10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] Successfully obtained TGT <span class="k">for </span>0 pre-created computer accounts. Saved to /home/kali/.nxc/modules/pre2k/ccache
+                                                                                                                                        
+</code></pre></div></div>
+
+<p>Okay, so not thats pretty lame. But… after checking that user descriptions we did find something.</p>
+
+<p><img src="Screenshot from 2025-05-18 21-55-56.png" alt="alt text" /></p>
+
+<p>Heyyyy, there we go! We got a user account.</p>
+
+<p>ldapusr:ldapisfun</p>
+
+<p>Alright, I’m going to save you a bit of scrolling time. None of our other commands above were helped by this user account. Lets try some privilege escalation.</p>
+
+<p>Lets start with my go-to Certipy-ad. Certipy is like</p>
+
+
+      </section>
+    </div>
+  </body>
+</html>
