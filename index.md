@@ -26,6 +26,18 @@
 <div class="container">
     <section id="main_content">
 
+    <h1 id="this-is-a-personal-blog-to-record-my-cybersecurity-and-programming-experiences">Bugs & Real Security Flaws</h1>
+    <ul>
+    <a href="/vulns/ctfVuln"><li>Censored CTF - AWS to Azure Storage Blobs</li></a>
+    <br>
+    <a href="/vulns/tradingGame"><li>Trading Game Websockets</li></a>
+    <br>
+    </ul>
+    </section>
+</div>
+<div class="container">
+    <section id="main_content">
+
     <h1 id="this-is-a-personal-blog-to-record-my-cybersecurity-and-programming-experiences">CTFs</h1>
     <ul>
     <a href="/ctfs/duckCTF2024"><li>DuckCTF 2024</li></a>
